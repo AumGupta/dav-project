@@ -14,7 +14,7 @@ pre-processing steps.
 handling incomplete data (e.g. email address doesn't have @ symbol).
 
 4. The pre-processing steps may include transforming the data to some other format (e.g text comment converted to
-term vector, image files converted to various types of features), discretization and binning,
+term vector, image files converted to various types of features), discretization and binning (Group/Categorization),
 standardization/normalization and outlier detection. Some string manipulations may also be required.
 
-5. Prepare at least eight analysis questions for exploration of the data and at least two questions for the visualization of the data.
+5. Prepare at least eight analysis questions for exploration of the data and at least two questions for the visualization of the data. (10 Questions)
