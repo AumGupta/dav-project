@@ -1,0 +1,1209 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{english}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={dav-project},
+  pdflang={en},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{dav-project}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\hypertarget{cell-id=f75a2b6b}{}
+\hypertarget{Customer-Satisfaction-Analysis}{%
+\section{\texorpdfstring{Customer Satisfaction
+Analysis\protect\hyperlink{Customer-Satisfaction-Analysis}{¶}}{Customer Satisfaction Analysis¶}}\label{Customer-Satisfaction-Analysis}}
+
+\textbf{Objective:} We shall be analysing customer satisfaction by using
+their review score as a metric of satisfaction.
+
+\textbf{Dataset:}
+\url{https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce?resource=download}
+
+\begin{quote}
+Brazilian E-Commerce Public Dataset by Olist Welcome! This is a
+Brazilian ecommerce public dataset of orders made at Olist Store. The
+dataset has information of 100k orders from 2016 to 2018 made at
+multiple marketplaces in Brazil. Its features allows viewing an order
+from multiple dimensions: from order status, price, payment and freight
+performance to customer location, product attributes and finally reviews
+written by customers. We also released a geolocation dataset that
+relates Brazilian zip codes to lat/lng coordinates. This is real
+commercial data, it has been anonymised, and references to the companies
+and partners in the review text have been replaced with the names of
+Game of Thrones great houses.
+\end{quote}
+
+\hypertarget{cell-id=fddf80a8}{}
+\hypertarget{1.-Importing-the-files}{%
+\subsection{\texorpdfstring{1. Importing the
+files\protect\hyperlink{1.-Importing-the-files}{¶}}{1. Importing the files¶}}\label{1.-Importing-the-files}}
+
+\hypertarget{cell-id=f5ff6e40}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+\end{verbatim}
+
+\hypertarget{cell-id=0413dfe4}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+customers = pd.read_csv("datasets/olist_customers_dataset.csv")
+geoloc = pd.read_csv("datasets/olist_geolocation_dataset.csv")
+order_reviews = pd.read_csv("datasets/olist_order_reviews_dataset.csv")
+order_items = pd.read_csv("datasets/olist_order_items_dataset.csv")
+order_payments = pd.read_csv("datasets/olist_order_payments_dataset.csv")
+orders = pd.read_csv("datasets/olist_orders_dataset.csv")
+products = pd.read_csv("datasets/olist_products_dataset.csv")
+sellers = pd.read_csv("datasets/olist_sellers_dataset.csv")
+product_category_name_translation = pd.read_csv("datasets/product_category_name_translation.csv")
+\end{verbatim}
+
+\hypertarget{cell-id=0e6af490}{}
+\hypertarget{2.-Relationship-Between-The-Tables}{%
+\subsection{\texorpdfstring{2. Relationship Between The
+Tables\protect\hyperlink{2.-Relationship-Between-The-Tables}{¶}}{2. Relationship Between The Tables¶}}\label{2.-Relationship-Between-The-Tables}}
+
+\hypertarget{cell-id=e5a14d58}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+customers.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule()
+& customer\_id & customer\_unique\_id & customer\_zip\_code\_prefix &
+customer\_city & customer\_state \\
+\midrule()
+\endhead
+0 & 06b8999e2fba1a1fbc88172c00ba8bc7 & 861eff4711a542e4b93843c6dd7febb0
+& 14409 & franca & SP \\
+1 & 18955e83d337fd6b2def6b18a428ac77 & 290c77bc529b7ac935b93aa66c333dc3
+& 9790 & sao bernardo do campo & SP \\
+2 & 4e7b3e00288586ebd08712fdd0374a03 & 060e732b5b29e8181a18229c7b0b2b5e
+& 1151 & sao paulo & SP \\
+3 & b2b6027bc5c5109e529d4dc6358b12c3 & 259dac757896d24d7702b9acbbff3f3c
+& 8775 & mogi das cruzes & SP \\
+4 & 4f2d8ab171c80ec8364f7c12e35b23ad & 345ecd01c38d18a9036ed96c73b8d066
+& 13056 & campinas & SP \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=f1759b56}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+geoloc.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule()
+& geolocation\_zip\_code\_prefix & geolocation\_lat & geolocation\_lng &
+geolocation\_city & geolocation\_state \\
+\midrule()
+\endhead
+0 & 1037 & -23.545621 & -46.639292 & sao paulo & SP \\
+1 & 1046 & -23.546081 & -46.644820 & sao paulo & SP \\
+2 & 1046 & -23.546129 & -46.642951 & sao paulo & SP \\
+3 & 1041 & -23.544392 & -46.639499 & sao paulo & SP \\
+4 & 1035 & -23.541578 & -46.641607 & sao paulo & SP \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=378aafaf}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_reviews.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllllll@{}}
+\toprule()
+& review\_id & order\_id & review\_score & review\_comment\_title &
+review\_comment\_message & review\_creation\_date &
+review\_answer\_timestamp \\
+\midrule()
+\endhead
+0 & 7bc2406110b926393aa56f80a40eba40 & 73fc7af87114b39712e6da79b0a377eb
+& 4 & NaN & NaN & 2018-01-18 00:00:00 & 2018-01-18 21:46:59 \\
+1 & 80e641a11e56f04c1ad469d5645fdfde & a548910a1c6147796b98fdf73dbeba33
+& 5 & NaN & NaN & 2018-03-10 00:00:00 & 2018-03-11 03:05:13 \\
+2 & 228ce5500dc1d8e020d8d1322874b6f0 & f9e4b658b201a9f2ecdecbb34bed034b
+& 5 & NaN & NaN & 2018-02-17 00:00:00 & 2018-02-18 14:36:24 \\
+3 & e64fb393e7b32834bb789ff8bb30750e & 658677c97b385a9be170737859d3511b
+& 5 & NaN & Recebi bem antes do prazo estipulado. & 2017-04-21 00:00:00
+& 2017-04-21 22:02:06 \\
+4 & f7c4243c7fe1938f181bec41a392bdeb & 8e6bfb81e283fa7e4f11123a3fb894f1
+& 5 & NaN & Parabéns lojas lannister adorei comprar pela I... &
+2018-03-01 00:00:00 & 2018-03-02 10:26:53 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=de8b63bd}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_items.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllllll@{}}
+\toprule()
+& order\_id & order\_item\_id & product\_id & seller\_id &
+shipping\_limit\_date & price & freight\_value \\
+\midrule()
+\endhead
+0 & 00010242fe8c5a6d1ba2dd792cb16214 & 1 &
+4244733e06e7ecb4970a6e2683c13e61 & 48436dade18ac8b2bce089ec2a041202 &
+2017-09-19 09:45:35 & 58.90 & 13.29 \\
+1 & 00018f77f2f0320c557190d7a144bdd3 & 1 &
+e5f2d52b802189ee658865ca93d83a8f & dd7ddc04e1b6c2c614352b383efe2d36 &
+2017-05-03 11:05:13 & 239.90 & 19.93 \\
+2 & 000229ec398224ef6ca0657da4fc703e & 1 &
+c777355d18b72b67abbeef9df44fd0fd & 5b51032eddd242adc84c38acab88f23d &
+2018-01-18 14:48:30 & 199.00 & 17.87 \\
+3 & 00024acbcdf0a6daa1e931b038114c75 & 1 &
+7634da152a4610f1595efa32f14722fc & 9d7a1d34a5052409006425275ba1c2b4 &
+2018-08-15 10:10:18 & 12.99 & 12.79 \\
+4 & 00042b26cf59d7ce69dfabb4e55b4fd9 & 1 &
+ac6c3623068f30de03045865e4e10089 & df560393f3a51e74553ab94004ba5c87 &
+2017-02-13 13:57:51 & 199.90 & 18.14 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=a2fb3601}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_payments.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule()
+& order\_id & payment\_sequential & payment\_type &
+payment\_installments & payment\_value \\
+\midrule()
+\endhead
+0 & b81ef226f3fe1789b1e8b2acac839d17 & 1 & credit\_card & 8 & 99.33 \\
+1 & a9810da82917af2d9aefd1278f1dcfa0 & 1 & credit\_card & 1 & 24.39 \\
+2 & 25e8ea4e93396b6fa0d3dd708e76c1bd & 1 & credit\_card & 1 & 65.71 \\
+3 & ba78997921bbcdc1373bb41e913ab953 & 1 & credit\_card & 8 & 107.78 \\
+4 & 42fdf880ba16b47b59251dd489d4441a & 1 & credit\_card & 2 & 128.45 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=4d2a9752}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+orders.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lllllllll@{}}
+\toprule()
+& order\_id & customer\_id & order\_status & order\_purchase\_timestamp
+& order\_approved\_at & order\_delivered\_carrier\_date &
+order\_delivered\_customer\_date & order\_estimated\_delivery\_date \\
+\midrule()
+\endhead
+0 & e481f51cbdc54678b7cc49136f2d6af7 & 9ef432eb6251297304e76186b10a928d
+& delivered & 2017-10-02 10:56:33 & 2017-10-02 11:07:15 & 2017-10-04
+19:55:00 & 2017-10-10 21:25:13 & 2017-10-18 00:00:00 \\
+1 & 53cdb2fc8bc7dce0b6741e2150273451 & b0830fb4747a6c6d20dea0b8c802d7ef
+& delivered & 2018-07-24 20:41:37 & 2018-07-26 03:24:27 & 2018-07-26
+14:31:00 & 2018-08-07 15:27:45 & 2018-08-13 00:00:00 \\
+2 & 47770eb9100c2d0c44946d9cf07ec65d & 41ce2a54c0b03bf3443c3d931a367089
+& delivered & 2018-08-08 08:38:49 & 2018-08-08 08:55:23 & 2018-08-08
+13:50:00 & 2018-08-17 18:06:29 & 2018-09-04 00:00:00 \\
+3 & 949d5b44dbf5de918fe9c16f97b45f8a & f88197465ea7920adcdbec7375364d82
+& delivered & 2017-11-18 19:28:06 & 2017-11-18 19:45:59 & 2017-11-22
+13:39:59 & 2017-12-02 00:28:42 & 2017-12-15 00:00:00 \\
+4 & ad21c59c0840e6cb83a9ceb5573f8159 & 8ab97904e6daea8866dbdbc4fb7aad2c
+& delivered & 2018-02-13 21:18:39 & 2018-02-13 22:20:29 & 2018-02-14
+19:46:34 & 2018-02-16 18:17:02 & 2018-02-26 00:00:00 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=cef588e2}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+products.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllllllll@{}}
+\toprule()
+& product\_id & product\_category\_name & product\_name\_lenght &
+product\_description\_lenght & product\_photos\_qty & product\_weight\_g
+& product\_length\_cm & product\_height\_cm & product\_width\_cm \\
+\midrule()
+\endhead
+0 & 1e9e8ef04dbcff4541ed26657ea517e5 & perfumaria & 40.0 & 287.0 & 1.0 &
+225.0 & 16.0 & 10.0 & 14.0 \\
+1 & 3aa071139cb16b67ca9e5dea641aaa2f & artes & 44.0 & 276.0 & 1.0 &
+1000.0 & 30.0 & 18.0 & 20.0 \\
+2 & 96bd76ec8810374ed1b65e291975717f & esporte\_lazer & 46.0 & 250.0 &
+1.0 & 154.0 & 18.0 & 9.0 & 15.0 \\
+3 & cef67bcfe19066a932b7673e239eb23d & bebes & 27.0 & 261.0 & 1.0 &
+371.0 & 26.0 & 4.0 & 26.0 \\
+4 & 9dc1a7de274444849c219cff195d0b71 & utilidades\_domesticas & 37.0 &
+402.0 & 4.0 & 625.0 & 20.0 & 17.0 & 13.0 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=eabfa2da}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+sellers.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lllll@{}}
+\toprule()
+& seller\_id & seller\_zip\_code\_prefix & seller\_city &
+seller\_state \\
+\midrule()
+\endhead
+0 & 3442f8959a84dea7ee197c632cb2df15 & 13023 & campinas & SP \\
+1 & d1b65fc7debc3361ea86b5f14c68d2e2 & 13844 & mogi guacu & SP \\
+2 & ce3ad9de960102d0677a81f5d0bb7b2d & 20031 & rio de janeiro & RJ \\
+3 & c0f3eea2e14555b6faeea3dd58c1b1c3 & 4195 & sao paulo & SP \\
+4 & 51a04a8a6bdcb23deccc82b0b80742cf & 12914 & braganca paulista & SP \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=2076f6a1}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+product_category_name_translation.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+& product\_category\_name & product\_category\_name\_english \\
+\midrule()
+\endhead
+0 & beleza\_saude & health\_beauty \\
+1 & informatica\_acessorios & computers\_accessories \\
+2 & automotivo & auto \\
+3 & cama\_mesa\_banho & bed\_bath\_table \\
+4 & moveis\_decoracao & furniture\_decor \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=46713472}{}
+\hypertarget{3.-Data-Cleaning}{%
+\subsection{\texorpdfstring{3. Data
+Cleaning\protect\hyperlink{3.-Data-Cleaning}{¶}}{3. Data Cleaning¶}}\label{3.-Data-Cleaning}}
+
+\hypertarget{cell-id=mJysMP_jEzft}{}
+\hypertarget{3.1-Handling-Missing-Value}{%
+\subsubsection{\texorpdfstring{3.1 Handling Missing
+Value\protect\hyperlink{3.1-Handling-Missing-Value}{¶}}{3.1 Handling Missing Value¶}}\label{3.1-Handling-Missing-Value}}
+
+\hypertarget{cell-id=5094b694}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+customers.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+customer_id                 0
+customer_unique_id          0
+customer_zip_code_prefix    0
+customer_city               0
+customer_state              0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=3edeaaaf}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+geoloc.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+geolocation_zip_code_prefix    0
+geolocation_lat                0
+geolocation_lng                0
+geolocation_city               0
+geolocation_state              0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=f138fd46}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_reviews.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+review_id                      0
+order_id                       0
+review_score                   0
+review_comment_title       87656
+review_comment_message     58247
+review_creation_date           0
+review_answer_timestamp        0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=4c7aa475}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+# Since these two have missing values
+del order_reviews['review_comment_title']
+del order_reviews['review_comment_message']
+\end{verbatim}
+
+\hypertarget{cell-id=bc7cd156}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_reviews.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+review_id                  0
+order_id                   0
+review_score               0
+review_creation_date       0
+review_answer_timestamp    0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=5fb42e45}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_items.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+order_id               0
+order_item_id          0
+product_id             0
+seller_id              0
+shipping_limit_date    0
+price                  0
+freight_value          0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=1942b71a}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_payments.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+order_id                0
+payment_sequential      0
+payment_type            0
+payment_installments    0
+payment_value           0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=d88a3f3c}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+orders.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+order_id                            0
+customer_id                         0
+order_status                        0
+order_purchase_timestamp            0
+order_approved_at                 160
+order_delivered_carrier_date     1783
+order_delivered_customer_date    2965
+order_estimated_delivery_date       0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=6a534b9b}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+del orders['order_approved_at']
+del orders['order_delivered_carrier_date']
+del orders['order_delivered_customer_date']
+orders.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+order_id                         0
+customer_id                      0
+order_status                     0
+order_purchase_timestamp         0
+order_estimated_delivery_date    0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=b7c32a6c}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+products.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+product_id                      0
+product_category_name         610
+product_name_lenght           610
+product_description_lenght    610
+product_photos_qty            610
+product_weight_g                2
+product_length_cm               2
+product_height_cm               2
+product_width_cm                2
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=24d2a289}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+# Replacng missing categories with "Unknown"
+products['product_category_name'].replace(np.nan,'Unknown',inplace=True)
+\end{verbatim}
+
+\hypertarget{cell-id=0a04a0c4}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+# To only keep product_id and product_category_name columns
+products=products[['product_id','product_category_name']].copy()
+\end{verbatim}
+
+\hypertarget{cell-id=c90c47dc}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+products.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+product_id               0
+product_category_name    0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=2c7ab944}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+sellers.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+seller_id                 0
+seller_zip_code_prefix    0
+seller_city               0
+seller_state              0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=349b669c}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+product_category_name_translation.isnull().sum()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{verbatim}
+product_category_name            0
+product_category_name_english    0
+dtype: int64
+\end{verbatim}
+
+\hypertarget{cell-id=p7Q9VkRnEzf0}{}
+\hypertarget{3.2-Managing-Inconsistent-Data}{%
+\subsubsection{\texorpdfstring{3.2 Managing Inconsistent
+Data\protect\hyperlink{3.2-Managing-Inconsistent-Data}{¶}}{3.2 Managing Inconsistent Data¶}}\label{3.2-Managing-Inconsistent-Data}}
+
+\hypertarget{cell-id=w3Na8nNCEzf0}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_payments['payment_value'] = order_payments['payment_value'].astype(float)
+order_payments.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule()
+& order\_id & payment\_sequential & payment\_type &
+payment\_installments & payment\_value \\
+\midrule()
+\endhead
+0 & b81ef226f3fe1789b1e8b2acac839d17 & 1 & credit\_card & 8 & 99.33 \\
+1 & a9810da82917af2d9aefd1278f1dcfa0 & 1 & credit\_card & 1 & 24.39 \\
+2 & 25e8ea4e93396b6fa0d3dd708e76c1bd & 1 & credit\_card & 1 & 65.71 \\
+3 & ba78997921bbcdc1373bb41e913ab953 & 1 & credit\_card & 8 & 107.78 \\
+4 & 42fdf880ba16b47b59251dd489d4441a & 1 & credit\_card & 2 & 128.45 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=Zjb9pcI2Ezf0}{}
+\hypertarget{4.-Data-Preprocessing}{%
+\subsection{\texorpdfstring{4. Data
+Preprocessing\protect\hyperlink{4.-Data-Preprocessing}{¶}}{4. Data Preprocessing¶}}\label{4.-Data-Preprocessing}}
+
+\hypertarget{cell-id=3UH-olfsEzf1}{}
+\hypertarget{4.1-String-Manipulation}{%
+\subsubsection{\texorpdfstring{4.1 String
+Manipulation\protect\hyperlink{4.1-String-Manipulation}{¶}}{4.1 String Manipulation¶}}\label{4.1-String-Manipulation}}
+
+\hypertarget{cell-id=4x3gn4ueEzf1}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+customers['customer_city'] = customers['customer_city'].str.title()
+customers.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule()
+& customer\_id & customer\_unique\_id & customer\_zip\_code\_prefix &
+customer\_city & customer\_state \\
+\midrule()
+\endhead
+0 & 06b8999e2fba1a1fbc88172c00ba8bc7 & 861eff4711a542e4b93843c6dd7febb0
+& 14409 & Franca & SP \\
+1 & 18955e83d337fd6b2def6b18a428ac77 & 290c77bc529b7ac935b93aa66c333dc3
+& 9790 & Sao Bernardo Do Campo & SP \\
+2 & 4e7b3e00288586ebd08712fdd0374a03 & 060e732b5b29e8181a18229c7b0b2b5e
+& 1151 & Sao Paulo & SP \\
+3 & b2b6027bc5c5109e529d4dc6358b12c3 & 259dac757896d24d7702b9acbbff3f3c
+& 8775 & Mogi Das Cruzes & SP \\
+4 & 4f2d8ab171c80ec8364f7c12e35b23ad & 345ecd01c38d18a9036ed96c73b8d066
+& 13056 & Campinas & SP \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=AQtg35AAEzf1}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+geoloc['geolocation_city'] = geoloc['geolocation_city'].str.title()
+geoloc.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule()
+& geolocation\_zip\_code\_prefix & geolocation\_lat & geolocation\_lng &
+geolocation\_city & geolocation\_state \\
+\midrule()
+\endhead
+0 & 1037 & -23.545621 & -46.639292 & Sao Paulo & SP \\
+1 & 1046 & -23.546081 & -46.644820 & Sao Paulo & SP \\
+2 & 1046 & -23.546129 & -46.642951 & Sao Paulo & SP \\
+3 & 1041 & -23.544392 & -46.639499 & Sao Paulo & SP \\
+4 & 1035 & -23.541578 & -46.641607 & Sao Paulo & SP \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=-KcSyF10Ezf2}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+sellers['seller_city'] = sellers['seller_city'].str.title()
+
+sellers.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lllll@{}}
+\toprule()
+& seller\_id & seller\_zip\_code\_prefix & seller\_city &
+seller\_state \\
+\midrule()
+\endhead
+0 & 3442f8959a84dea7ee197c632cb2df15 & 13023 & Campinas & SP \\
+1 & d1b65fc7debc3361ea86b5f14c68d2e2 & 13844 & Mogi Guacu & SP \\
+2 & ce3ad9de960102d0677a81f5d0bb7b2d & 20031 & Rio De Janeiro & RJ \\
+3 & c0f3eea2e14555b6faeea3dd58c1b1c3 & 4195 & Sao Paulo & SP \\
+4 & 51a04a8a6bdcb23deccc82b0b80742cf & 12914 & Braganca Paulista & SP \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=unmXJK2xXJEp}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+product_category_name_translation['product_category_name_english'] = product_category_name_translation['product_category_name_english'].str.replace('_',' ').str.title()
+product_category_name_translation.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+& product\_category\_name & product\_category\_name\_english \\
+\midrule()
+\endhead
+0 & beleza\_saude & Health Beauty \\
+1 & informatica\_acessorios & Computers Accessories \\
+2 & automotivo & Auto \\
+3 & cama\_mesa\_banho & Bed Bath Table \\
+4 & moveis\_decoracao & Furniture Decor \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=avZl0iCZEzf2}{}
+\hypertarget{4.2-Discretisation}{%
+\subsubsection{\texorpdfstring{4.2
+Discretisation\protect\hyperlink{4.2-Discretisation}{¶}}{4.2 Discretisation¶}}\label{4.2-Discretisation}}
+
+\hypertarget{cell-id=zmf4PxctEzf8}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+order_reviews_bin = [1,2,3,6]
+order_reviews_label = ['Poor','Average','Good']
+order_reviews['review_score_group'] = pd.cut(order_reviews['review_score'],bins=order_reviews_bin, labels=order_reviews_label, right=False)
+
+order_reviews.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lllllll@{}}
+\toprule()
+& review\_id & order\_id & review\_score & review\_creation\_date &
+review\_answer\_timestamp & review\_score\_group \\
+\midrule()
+\endhead
+0 & 7bc2406110b926393aa56f80a40eba40 & 73fc7af87114b39712e6da79b0a377eb
+& 4 & 2018-01-18 00:00:00 & 2018-01-18 21:46:59 & Good \\
+1 & 80e641a11e56f04c1ad469d5645fdfde & a548910a1c6147796b98fdf73dbeba33
+& 5 & 2018-03-10 00:00:00 & 2018-03-11 03:05:13 & Good \\
+2 & 228ce5500dc1d8e020d8d1322874b6f0 & f9e4b658b201a9f2ecdecbb34bed034b
+& 5 & 2018-02-17 00:00:00 & 2018-02-18 14:36:24 & Good \\
+3 & e64fb393e7b32834bb789ff8bb30750e & 658677c97b385a9be170737859d3511b
+& 5 & 2017-04-21 00:00:00 & 2017-04-21 22:02:06 & Good \\
+4 & f7c4243c7fe1938f181bec41a392bdeb & 8e6bfb81e283fa7e4f11123a3fb894f1
+& 5 & 2018-03-01 00:00:00 & 2018-03-02 10:26:53 & Good \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=98a84c3b}{}
+\hypertarget{5.-Data-Analysis-And-Visualization}{%
+\subsection{\texorpdfstring{5. Data Analysis And
+Visualization\protect\hyperlink{5.-Data-Analysis-And-Visualization}{¶}}{5. Data Analysis And Visualization¶}}\label{5.-Data-Analysis-And-Visualization}}
+
+\begin{enumerate}
+\tightlist
+\item
+  Histogram for customer review
+\item
+  Customer reviews grouped by state
+\item
+  Best 5 reviewed product category analysis
+\item
+  Worst 5 reviewed product category analysis
+\item
+  Top 10 Seller with highest product reviews
+\item
+  Bottom 10 Seller with lowest product reviews
+\item
+  Payment method used by most satisfied customers
+\item
+  Freight value paid by most satisfied customers
+\item
+  Percentage of seller who satisfied most customers (Sellers whose
+  products have 4 or above stars rating)
+\item
+  Percentage of customers most satisfied (Satisfaction = Review score of
+  4 or more)
+\end{enumerate}
+
+\hypertarget{cell-id=9583cf15}{}
+\hypertarget{5.1-Histogram-for-customer-review}{%
+\subsubsection{\texorpdfstring{5.1 Histogram for customer
+review\protect\hyperlink{5.1-Histogram-for-customer-review}{¶}}{5.1 Histogram for customer review¶}}\label{5.1-Histogram-for-customer-review}}
+
+\hypertarget{cell-id=5f03571b}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+plt.hist(order_reviews['review_score'])
+plt.xticks([1,2,3,4,5])
+plt.xlabel('Review Score')
+plt.ylabel('Number of Customers')
+plt.show()
+\end{verbatim}
+
+\hypertarget{cell-id=f34cf0ad}{}
+\hypertarget{5.2-Customer-reviews-grouped-by-state}{%
+\subsubsection{\texorpdfstring{5.2 Customer reviews grouped by
+state\protect\hyperlink{5.2-Customer-reviews-grouped-by-state}{¶}}{5.2 Customer reviews grouped by state¶}}\label{5.2-Customer-reviews-grouped-by-state}}
+
+\hypertarget{cell-id=9bcd6dd6}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+grp2 = pd.merge(customers, orders, on='customer_id')
+grp2 = pd.merge(grp2, order_reviews, on='order_id')
+grp2 = grp2.drop(grp2[(grp2['review_score']<4)].index)
+grp2 = grp2[['customer_state','customer_id']]
+grp2 = grp2.groupby('customer_state').count().reset_index()
+grp2 = grp2.sort_values(by='customer_id')
+x = grp2['customer_id']
+y = grp2['customer_state']
+plt.barh(
+    y = y,
+    width= x,
+    color='r',
+    )
+plt.xticks(range(0,x.max(),2000), rotation = 60)
+plt.title('Satisfied Customers Grouped by State')
+plt.ylabel('Customer States')
+plt.xlabel('Number of Satisfied Customers')
+plt.show()
+\end{verbatim}
+
+\hypertarget{cell-id=Rh-iTx4jEzf-}{}
+\hypertarget{5.3-Best-5-reviewed-product-categories-analysis}{%
+\subsubsection{\texorpdfstring{5.3 Best 5 reviewed product categories
+analysis\protect\hyperlink{5.3-Best-5-reviewed-product-categories-analysis}{¶}}{5.3 Best 5 reviewed product categories analysis¶}}\label{5.3-Best-5-reviewed-product-categories-analysis}}
+
+\hypertarget{cell-id=ysfNartlEzf-}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+product_category_review = pd.merge(products,order_items,on='product_id')
+product_category_review = pd.merge(product_category_review ,orders,on='order_id')
+product_category_review = pd.merge(product_category_review ,order_reviews,on='order_id')
+product_category_review = product_category_review[['product_category_name','review_score']]
+product_category_review = product_category_review.groupby('product_category_name').mean().round().reset_index()
+product_category_review = pd.merge(product_category_review,product_category_name_translation,on='product_category_name')
+product_category_review = product_category_review[['product_category_name_english','review_score']]
+product_category_review = product_category_review.sort_values(by='review_score',ascending=False)
+product_category_review.columns = ['Product Category', 'Review Score']
+product_category_review.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+& Product Category & Review Score \\
+\midrule()
+\endhead
+17 & Cds Dvds Musicals & 5.0 \\
+45 & Musical Instruments & 4.0 \\
+51 & Market Place & 4.0 \\
+50 & Luggage Accessories & 4.0 \\
+49 & Books Technical & 4.0 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=OvJ4PmRkEzf_}{}
+\hypertarget{5.4-Worst-5-reviewed-product-category-analysis}{%
+\subsubsection{\texorpdfstring{5.4 Worst 5 reviewed product category
+analysis\protect\hyperlink{5.4-Worst-5-reviewed-product-category-analysis}{¶}}{5.4 Worst 5 reviewed product category analysis¶}}\label{5.4-Worst-5-reviewed-product-category-analysis}}
+
+\hypertarget{cell-id=30V_xoLXEzf_}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+product_category_review = product_category_review.sort_values(by='Review Score')
+product_category_review.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+& Product Category & Review Score \\
+\midrule()
+\endhead
+65 & Security And Services & 2.0 \\
+55 & Office Furniture & 3.0 \\
+42 & Diapers And Hygiene & 3.0 \\
+70 & Housewares & 4.0 \\
+15 & Home Comfort 2 & 4.0 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=-F0yON2kEzf_}{}
+\hypertarget{5.5-Top-10-Seller-with-highest-product-reviews}{%
+\subsubsection{\texorpdfstring{5.5 Top 10 Seller with highest product
+reviews\protect\hyperlink{5.5-Top-10-Seller-with-highest-product-reviews}{¶}}{5.5 Top 10 Seller with highest product reviews¶}}\label{5.5-Top-10-Seller-with-highest-product-reviews}}
+
+\hypertarget{cell-id=sQ65xBdXEzf_}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+grp3 = pd.merge(order_reviews,orders,on='order_id')
+grp3 = pd.merge(grp3,order_items,on='order_id')
+grp3 = pd.merge(grp3,sellers,on='seller_id')
+grp3 = grp3[['review_score','seller_id']]
+grp3 = grp3.groupby('seller_id').mean().round().reset_index()
+grp3 = grp3.sort_values(by = 'review_score', ascending = False)
+grp3.head(10)
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+& seller\_id & review\_score \\
+\midrule()
+\endhead
+2605 & d8b8f2cf9ff6ba0389072541cb42498c & 5.0 \\
+606 & 33a17d60c64393351ebf1ef860f4e0f2 & 5.0 \\
+595 & 32e5635e63cb374eb63afdd242fb6134 & 5.0 \\
+1356 & 6f835fd4be26989b1b064399da346143 & 5.0 \\
+597 & 32f83ffe11cd40f7adcf4eef171f52d9 & 5.0 \\
+2575 & d566c37fa119d5e66c4e9052e83ee4ea & 5.0 \\
+2574 & d558ebe531605a1285ab2b1bc3256dfb & 5.0 \\
+600 & 333c4210e76a1aa2ab817b99437e3ff1 & 5.0 \\
+2573 & d52cbce9845184537284a23c3bc3da0e & 5.0 \\
+602 & 334cab711dee080b079fa5779b584783 & 5.0 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=OKubTETrEzgA}{}
+\hypertarget{5.6-Bottom-10-Seller-with-lowest-product-reviews}{%
+\subsubsection{\texorpdfstring{5.6 Bottom 10 Seller with lowest product
+reviews\protect\hyperlink{5.6-Bottom-10-Seller-with-lowest-product-reviews}{¶}}{5.6 Bottom 10 Seller with lowest product reviews¶}}\label{5.6-Bottom-10-Seller-with-lowest-product-reviews}}
+
+\hypertarget{cell-id=I5MJNAU6EzgA}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+grp3 = pd.merge(order_reviews,orders,on='order_id')
+grp3 = pd.merge(grp3,order_items,on='order_id')
+grp3 = pd.merge(grp3,sellers,on='seller_id')
+grp3 = grp3[['review_score','seller_id']]
+grp3 = grp3.groupby('seller_id').mean().round().reset_index()
+grp3 = grp3.sort_values(by = 'review_score')
+grp3.head(10)
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+& seller\_id & review\_score \\
+\midrule()
+\endhead
+1967 & a247197e2e9c19a6a53a6888cb8b660f & 1.0 \\
+2740 & e46bc031f2c5bae4ccb40bb90712e9b4 & 1.0 \\
+128 & 0aa124728afc1131dff5655f4c6f487b & 1.0 \\
+2439 & c97aa4ee7420f937da13b7f9e2228b99 & 1.0 \\
+301 & 1992f8fb6b19fcccd97ca819811e7267 & 1.0 \\
+1265 & 67e43d802fde8cfd3f9580124f8167d1 & 1.0 \\
+1823 & 9599519be538b98748162a2b48248960 & 1.0 \\
+983 & 5206cc4bc2297c833e6061c49bf9c43f & 1.0 \\
+297 & 1967a9e2ad6f51802b093147d861df58 & 1.0 \\
+1661 & 87f3e35268860433e13d577825aada95 & 1.0 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=L_YjpP-UEzgA}{}
+\hypertarget{5.7-Payment-method-used-by-most-satisfied-customers}{%
+\subsubsection{\texorpdfstring{5.7 Payment method used by most satisfied
+customers\protect\hyperlink{5.7-Payment-method-used-by-most-satisfied-customers}{¶}}{5.7 Payment method used by most satisfied customers¶}}\label{5.7-Payment-method-used-by-most-satisfied-customers}}
+
+\hypertarget{cell-id=tAjwShaXEzgA}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+grp = pd.merge(order_reviews,orders,on='order_id')
+grp = pd.merge(grp,customers,on='customer_id')
+grp = pd.merge(grp, order_payments,on='order_id')
+grp = grp[['review_score','customer_id', 'payment_type']]
+grp = grp.drop(grp[(grp['review_score']<4)].index)
+grp = grp[['customer_id', 'payment_type']]
+grp = grp.groupby('payment_type').count().reset_index()
+grp.head()
+\end{verbatim}
+
+Out{[}~{]}:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+& payment\_type & customer\_id \\
+\midrule()
+\endhead
+0 & boleto & 15217 \\
+1 & credit\_card & 59098 \\
+2 & debit\_card & 1212 \\
+3 & voucher & 4303 \\
+\bottomrule()
+\end{longtable}
+
+\hypertarget{cell-id=3ii-WHxpEzgB}{}
+\hypertarget{5.8-Freight-value-paid-by-most-satisfied-customers}{%
+\subsubsection{\texorpdfstring{5.8 Freight value paid by most satisfied
+customers\protect\hyperlink{5.8-Freight-value-paid-by-most-satisfied-customers}{¶}}{5.8 Freight value paid by most satisfied customers¶}}\label{5.8-Freight-value-paid-by-most-satisfied-customers}}
+
+\hypertarget{cell-id=cN5kWmOYEzgB}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+grp = pd.merge(order_reviews,orders,on='order_id')
+grp = pd.merge(grp,customers,on='customer_id')
+grp = pd.merge(grp, order_items,on='order_id')
+grp = grp[['review_score','customer_id', 'freight_value']]
+grp = grp.drop(grp[(grp['review_score']<4)].index)
+grp = grp[['freight_value']]
+avg_frieght = grp.mean().round(2)
+print("Average frieght value paid by most satisfied customers =",avg_frieght.values[0])
+\end{verbatim}
+
+\begin{verbatim}
+Average frieght value paid by most satisfied customers = 19.69
+\end{verbatim}
+
+\hypertarget{cell-id=SIvn4bKsEzgB}{}
+\hypertarget{5.9.-Percentage-of-seller-who-satisfied-most-customers-ux28Sellers-whose-products-have-4-or-above-stars-ratingux29}{%
+\subsubsection{\texorpdfstring{5.9. Percentage of seller who satisfied
+most customers (Sellers whose products have 4 or above stars
+rating)\protect\hyperlink{5.9.-Percentage-of-seller-who-satisfied-most-customers-ux28Sellers-whose-products-have-4-or-above-stars-ratingux29}{¶}}{5.9. Percentage of seller who satisfied most customers (Sellers whose products have 4 or above stars rating)¶}}\label{5.9.-Percentage-of-seller-who-satisfied-most-customers-ux28Sellers-whose-products-have-4-or-above-stars-ratingux29}}
+
+\hypertarget{cell-id=HtIprAUBEzgC}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+grp = pd.merge(order_reviews,orders,on='order_id')
+grp = pd.merge(grp,order_items,on='order_id')
+grp = pd.merge(grp,sellers,on='seller_id')
+grp = grp[['review_score','seller_id']]
+grp = grp.groupby('seller_id').mean().round().reset_index()
+grp = grp.groupby('review_score').count().reset_index()
+total_sellers = sellers['seller_id'].unique().size
+satisfactory_sellers = grp['seller_id'].where(grp['review_score']>3).sum()
+percentage_satisfactory_sellers = (satisfactory_sellers/total_sellers)*100
+print(f"Hence, {round(percentage_satisfactory_sellers,2)}% are satisfactory sellers receiving 4 or more as review score.")
+\end{verbatim}
+
+\begin{verbatim}
+Hence, 80.94% are satisfactory sellers receiving 4 or more as review score.
+\end{verbatim}
+
+\hypertarget{cell-id=eWMg536sEzgC}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+x = grp.review_score
+y = grp.seller_id
+plt.bar(x,y, color=[('g' if i>3 else 'r') for i in x])
+plt.xlabel('Review Score')
+plt.ylabel('Number of Sellers')
+plt.show()
+\end{verbatim}
+
+\hypertarget{cell-id=pGanxR1uEzgC}{}
+\hypertarget{5.10-Percentage-of-customers-satisfied-ux28Satisfaction-=-Review-score-of-4-or-moreux29}{%
+\subsubsection{\texorpdfstring{5.10 Percentage of customers satisfied
+(Satisfaction = Review score of 4 or
+more)\protect\hyperlink{5.10-Percentage-of-customers-satisfied-ux28Satisfaction-=-Review-score-of-4-or-moreux29}{¶}}{5.10 Percentage of customers satisfied (Satisfaction = Review score of 4 or more)¶}}\label{5.10-Percentage-of-customers-satisfied-ux28Satisfaction-=-Review-score-of-4-or-moreux29}}
+
+\hypertarget{cell-id=ZilA4iT9EzgD}{}
+In~{[}~{]}:
+
+\begin{verbatim}
+customer_reviews = pd.merge(orders, order_reviews, on='order_id')
+customer_reviews['review_score']
+total_reviews = order_reviews.review_score.count()
+satisfied_reviews = order_reviews.review_score.where(lambda s: s>=4).count()
+percentage_satisfied_customers = (satisfied_reviews/total_reviews)*100
+print(f"Hence, {round(percentage_satisfied_customers,2)}% of customers are satisfied with there orders.")
+\end{verbatim}
+
+\begin{verbatim}
+Hence, 77.07% of customers are satisfied with there orders.
+\end{verbatim}
+
+\hypertarget{cell-id=d9aa7dd9}{}
+\hypertarget{6.-Conclusion}{%
+\subsection{\texorpdfstring{6.
+Conclusion\protect\hyperlink{6.-Conclusion}{¶}}{6. Conclusion¶}}\label{6.-Conclusion}}
+
+\begin{itemize}
+\item
+  \textbf{High Customer Ratings:} A significant number of customers
+  (55,000) have given a 5-star rating, indicating a generally positive
+  sentiment towards the products and services.
+\item
+  \textbf{Regional Satisfaction:} The state of São Paulo (SP) stands out
+  with the highest number of satisfied customers, approximately 32,000,
+  suggesting potential regional preferences or effective marketing
+  strategies in that area.
+\item
+  \textbf{Best-Reviewed Product Categories:} Certain product categories,
+  such as "Cds Dvds Musicals," "Musical Instruments," and "Market
+  Place," received top-notch ratings, reflecting the success and
+  popularity of these items among customers.
+\item
+  \textbf{Least Favorable Product Categories:} Conversely, product
+  categories like "Security And Services" and "Office Furniture"
+  received lower ratings, signaling potential areas for improvement in
+  product quality or customer experience.
+\item
+  \textbf{Top-Rated Sellers:} The top 10 sellers with the highest
+  product reviews consistently achieved a perfect 5.0 score, showcasing
+  their excellence in customer satisfaction and service.
+\item
+  \textbf{Lowest-Rated Sellers:} On the other hand, the bottom 10
+  sellers with the lowest product reviews received a 1.0 score,
+  indicating areas that may require attention to enhance customer
+  satisfaction and trust.
+\item
+  \textbf{Preferred Payment Methods:} The majority of satisfied
+  customers used credit cards for transactions (59,098), followed by
+  boleto (15,217), debit cards (1,212), and vouchers (4,303), offering
+  insights into popular payment preferences.
+\item
+  \textbf{Freight Value:} The most common freight value paid by
+  satisfied customers is \$19.69, providing a benchmark for shipping
+  cost expectations among the content customer base.
+\item
+  \textbf{Satisfactory Sellers:} A substantial 80.94\% of sellers
+  received a review score of 4 or above, indicating that the majority of
+  sellers are meeting or exceeding customer expectations.
+\item
+  \textbf{Overall Customer Satisfaction:} A commendable 77.07\% of
+  customers expressed satisfaction with their orders, reinforcing the
+  positive outlook on the overall customer experience within the
+  analyzed data set.
+\end{itemize}
+
+In summary, this customer satisfaction analysis unveils valuable
+information about product performance, seller reliability, and customer
+preferences, offering actionable insights to enhance the overall
+satisfaction and loyalty of the customer base.
+
+\end{document}
